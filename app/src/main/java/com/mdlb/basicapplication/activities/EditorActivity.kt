@@ -1,4 +1,4 @@
-package com.mdlb.basicapplication
+package com.mdlb.basicapplication.activities
 
 import android.os.Bundle
 import android.view.MotionEvent
