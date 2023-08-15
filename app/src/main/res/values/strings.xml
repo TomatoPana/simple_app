@@ -50,4 +50,7 @@
     <string name="third_tab">Profiles</string>
     <string name="empty_list_description">Image of a person scared of message in a screen with the phrase \"No Data\"</string>
     <string name="empty_register_list_message">Seems like we don\'t have any data.\nAdd some clicking in the pen</string>
+    <string name="firstNameTextView">First name(s)</string>
+    <string name="lastNameTextView">Last name</string>
+    <string name="birthDateTextView">Birthdate</string>
 </resources>
