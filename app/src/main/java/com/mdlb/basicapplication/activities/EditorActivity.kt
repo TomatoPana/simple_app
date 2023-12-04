@@ -143,6 +143,7 @@ class EditorActivity : AppCompatActivity() {
         }
 
         saveButton.setOnClickListener {
+
             Toast.makeText(this, "Registro guardado", Toast.LENGTH_LONG).show()
         }
     }
