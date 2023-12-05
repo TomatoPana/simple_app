@@ -94,6 +94,14 @@ class RegistersFragment : Fragment() {
             })
             listLayout.adapter = adapter
 
+            if (databaseConnection?.getData()!!.isNotEmpty()) {
+                emptyListLayout.visibility = View.GONE
+                listLayout.visibility = View.VISIBLE
+            } else {
+                listLayout.visibility = View.GONE
+                emptyListLayout.visibility = View.VISIBLE
+            }
+
         } catch (_: IndexOutOfBoundsException) {
         }
     }
