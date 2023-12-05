@@ -41,4 +41,9 @@ class MainActivity : AppCompatActivity() {
             startActivity(Intent(this, EditorActivity::class.java))
         }
     }
+
+    override fun onResume() {
+        viewPager.adapter?.notifyDataSetChanged()
+        super.onResume()
+    }
 }

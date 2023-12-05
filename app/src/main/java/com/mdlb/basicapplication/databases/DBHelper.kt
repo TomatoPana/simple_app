@@ -1,5 +1,6 @@
 package com.mdlb.basicapplication.databases
 
+import android.annotation.SuppressLint
 import android.content.ContentValues
 import android.content.Context
 import android.database.Cursor
@@ -11,9 +12,24 @@ class DBHelper private constructor (context: Context, factory: SQLiteDatabase.Cu
     override fun onCreate(db: SQLiteDatabase?) {
         val query = ("CREATE TABLE " + TABLE_NAME + " ("
                 + ID + " INTEGER PRIMARY KEY, " +
-                FIRST_NAME + " TEXT," +
-                LAST_NAME + " TEXT," +
-
+                FIRST_NAME + " TEXT, " +
+                LAST_NAME + " TEXT, " +
+                BIRTH_DATE + " TEXT, " +
+                TIME_DATE + " TEXT, " +
+                GENDER + " TEXT, " +
+                IS_OTHER_GENDER + " INTEGER, " +
+                LEVEL + " TEXT, " +
+                HAS_COMMENT + " INTEGER, " +
+                COMMENT + " TEXT, " +
+                PREFERENCE_01 + " INTEGER, " +
+                PREFERENCE_02 + " INTEGER, " +
+                PREFERENCE_03 + " INTEGER, " +
+                PREFERENCE_04 + " INTEGER, " +
+                PREFERENCE_05 + " INTEGER, " +
+                PREFERENCE_06 + " INTEGER, " +
+                PREFERENCE_07 + " INTEGER, " +
+                PREFERENCE_08 + " INTEGER, " +
+                PREFERENCE_09 + " INTEGER" +
                 ")")
 
         db?.execSQL(query)
@@ -30,12 +46,67 @@ class DBHelper private constructor (context: Context, factory: SQLiteDatabase.Cu
         return db.rawQuery("SELECT * FROM $TABLE_NAME", null)
     }
 
-    fun getData(): String {
+    @SuppressLint("Range")
+    fun getData(): List<DataObject> {
         val cursor = getCursor()
 
-        cursor?.close()
+        val data = ArrayList<DataObject>();
 
-        return ""
+        if (!cursor!!.moveToFirst()) {
+            return data;
+        }
+
+        val dataObject = DataObject(
+            cursor.getInt(cursor.getColumnIndex(ID)),
+            cursor.getString(cursor.getColumnIndex(FIRST_NAME)),
+            cursor.getString(cursor.getColumnIndex(LAST_NAME)),
+            cursor.getString(cursor.getColumnIndex(BIRTH_DATE)),
+            cursor.getString(cursor.getColumnIndex(TIME_DATE)),
+            cursor.getString(cursor.getColumnIndex(GENDER)),
+            cursor.getInt(cursor.getColumnIndex(IS_OTHER_GENDER)) == 1,
+            cursor.getInt(cursor.getColumnIndex(LEVEL)) == 1,
+            cursor.getInt(cursor.getColumnIndex(HAS_COMMENT)) == 1,
+            cursor.getString(cursor.getColumnIndex(COMMENT)),
+            cursor.getInt(cursor.getColumnIndex(PREFERENCE_01)) == 1,
+            cursor.getInt(cursor.getColumnIndex(PREFERENCE_02)) == 1,
+            cursor.getInt(cursor.getColumnIndex(PREFERENCE_03)) == 1,
+            cursor.getInt(cursor.getColumnIndex(PREFERENCE_04)) == 1,
+            cursor.getInt(cursor.getColumnIndex(PREFERENCE_05)) == 1,
+            cursor.getInt(cursor.getColumnIndex(PREFERENCE_06)) == 1,
+            cursor.getInt(cursor.getColumnIndex(PREFERENCE_07)) == 1,
+            cursor.getInt(cursor.getColumnIndex(PREFERENCE_08)) == 1,
+            cursor.getInt(cursor.getColumnIndex(PREFERENCE_09)) == 1
+        )
+        data.add(dataObject)
+
+        while(cursor.moveToNext()) {
+            val dataObject = DataObject(
+                cursor.getInt(cursor.getColumnIndex(ID)),
+                cursor.getString(cursor.getColumnIndex(FIRST_NAME)),
+                cursor.getString(cursor.getColumnIndex(LAST_NAME)),
+                cursor.getString(cursor.getColumnIndex(BIRTH_DATE)),
+                cursor.getString(cursor.getColumnIndex(TIME_DATE)),
+                cursor.getString(cursor.getColumnIndex(GENDER)),
+                cursor.getInt(cursor.getColumnIndex(IS_OTHER_GENDER)) == 1,
+                cursor.getInt(cursor.getColumnIndex(LEVEL)) == 1,
+                cursor.getInt(cursor.getColumnIndex(HAS_COMMENT)) == 1,
+                cursor.getString(cursor.getColumnIndex(COMMENT)),
+                cursor.getInt(cursor.getColumnIndex(PREFERENCE_01)) == 1,
+                cursor.getInt(cursor.getColumnIndex(PREFERENCE_02)) == 1,
+                cursor.getInt(cursor.getColumnIndex(PREFERENCE_03)) == 1,
+                cursor.getInt(cursor.getColumnIndex(PREFERENCE_04)) == 1,
+                cursor.getInt(cursor.getColumnIndex(PREFERENCE_05)) == 1,
+                cursor.getInt(cursor.getColumnIndex(PREFERENCE_06)) == 1,
+                cursor.getInt(cursor.getColumnIndex(PREFERENCE_07)) == 1,
+                cursor.getInt(cursor.getColumnIndex(PREFERENCE_08)) == 1,
+                cursor.getInt(cursor.getColumnIndex(PREFERENCE_09)) == 1
+            )
+            data.add(dataObject)
+        }
+
+        cursor.close()
+
+        return data
     }
 
     fun addRegister(
@@ -84,6 +155,12 @@ class DBHelper private constructor (context: Context, factory: SQLiteDatabase.Cu
         db.insert(TABLE_NAME, null, values)
         
         db.close()
+    }
+
+    fun delete(index: Int) {
+        val db = this.readableDatabase
+
+        db.delete(TABLE_NAME, "$ID = ?", arrayOf(index.toString()))
     }
 
     companion object {

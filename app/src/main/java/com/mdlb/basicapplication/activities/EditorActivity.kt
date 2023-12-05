@@ -240,18 +240,97 @@ class EditorActivity : AppCompatActivity() {
 
         saveButton.setOnClickListener {
             var hasError = false
-            val correctStringRegex = Regex("[A-Za-z0-9 ]+")
+            val correctNameStringRegex = Regex("[A-Za-z0-9 ]+")
+            val correctDateRegex = Regex("\\d{4}-\\d{2}\\d{2}")
+            val correctHourRegex = Regex("(\\d{2}:\\d{2})?")
             val firstName = firstNameTextInputLayout.editText?.text.toString()
+            val lastName = lastNameTextInputLayout.editText?.text.toString()
+            val birthDate = dateInputLayout.editText?.text.toString()
+            val birthTime = timeInputLayout.editText?.text.toString()
 
-            if (correctStringRegex.matches(firstName) || firstName.isNotEmpty()) {
+            val gender = if (genderOtherSelected) {
+                genderSpinner.editText?.text.toString()
+            } else {
+                genderTextInputLayout.editText?.text.toString()
+            }
+
+            val level = levelRadioGroup.checkedRadioButtonId == R.id.tgoRadioButton
+            val hasComment = toggleCommentSwitch.isChecked
+            val comment = commentTextInputLayout.editText?.text.toString()
+            val preference01 = preference01CheckBox.isChecked
+            val preference02 = preference02CheckBox.isChecked
+            val preference03 = preference03CheckBox.isChecked
+            val preference04 = preference04CheckBox.isChecked
+            val preference05 = preference05CheckBox.isChecked
+            val preference06 = preference06CheckBox.isChecked
+            val preference07 = preference07CheckBox.isChecked
+            val preference08 = preferenceOtherCheckBox.isChecked
+            val preference09 = preferenceNoneCheckBox.isChecked
+
+            if (correctNameStringRegex.matches(firstName) || firstName.isNotEmpty()) {
                 firstNameTextInputLayout.error = null
             } else {
-                firstNameTextInputLayout.error = "Invalid Name"
+                firstNameTextInputLayout.error = "Invalid First Name(s)"
+                hasError = true
+            }
+
+            if (correctNameStringRegex.matches(lastName) || firstName.isNotEmpty()) {
+                lastNameTextInputLayout.error = null
+            } else {
+                lastNameTextInputLayout.error = "Invalid Last Name(s)"
+                hasError = true
+            }
+
+            if (correctDateRegex.matches(birthDate) || birthDate.isNotEmpty()) {
+                dateInputLayout.error = null
+            } else {
+                dateInputLayout.error = "Invalid Birth Date"
+                hasError = true
+            }
+
+            if (correctHourRegex.matches(birthTime)) {
+                timeInputLayout.error = null
+            } else {
+                timeInputLayout.error = "Invalid Birth time"
+                hasError = true
+            }
+
+            if ((genderSpinner.editText as? MaterialAutoCompleteTextView)?.id == 4) {
+                if (correctNameStringRegex.matches(gender) || gender.isNotEmpty()) {
+                    genderTextInputLayout.error = null
+                } else {
+                    genderTextInputLayout.error = "Invalid gender"
+                    hasError = true
+                }
+            }
+
+            if (levelRadioGroup.checkedRadioButtonId == -1) {
                 hasError = true
             }
 
             if (!hasError) {
+                databaseConnection.addRegister(
+                    firstName,
+                    lastName,
+                    birthDate,
+                    birthTime,
+                    gender,
+                    genderOtherSelected,
+                    level,
+                    hasComment,
+                    comment,
+                    preference01,
+                    preference02,
+                    preference03,
+                    preference04,
+                    preference05,
+                    preference06,
+                    preference07,
+                    preference08,
+                    preference09
+                )
                 Toast.makeText(this, "Registro guardado", Toast.LENGTH_LONG).show()
+                finish()
             } else {
                 Toast.makeText(this, "El formulario contiene errores, favor de revisar", Toast.LENGTH_LONG).show()
             }
