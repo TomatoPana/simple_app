@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string-array name="genderItems">
+        <item key="0">Male</item>
+        <item key="1">Female</item>
+        <item key="2">Non-Binary</item>
+        <item key="3">Prefer not to say</item>
+        <item key="4">Other</item>
+    </string-array>
+</resources>

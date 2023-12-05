@@ -8,11 +8,13 @@ import android.view.ViewGroup
 import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.recyclerview.widget.RecyclerView
 import com.mdlb.basicapplication.R
+import com.mdlb.basicapplication.databases.DBHelper
 
 class RegistersFragment : Fragment() {
 
     private lateinit var listLayout: RecyclerView
     private lateinit var emptyListLayout: ConstraintLayout
+    private lateinit var databaseConnection: DBHelper
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -20,8 +22,14 @@ class RegistersFragment : Fragment() {
     ): View? {
         // Inflate the layout for this fragment
         val view = inflater.inflate(R.layout.fragment_registers, container, false)
+        databaseConnection = DBHelper.getInstance(this.requireContext())
         listLayout = view.findViewById(R.id.list_layout)
         emptyListLayout = view.findViewById(R.id.empty_list_layout)
         return view
+    }
+
+    override fun onDestroyView() {
+        databaseConnection.close()
+        super.onDestroyView()
     }
 }

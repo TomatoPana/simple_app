@@ -1,22 +1,29 @@
 package com.mdlb.basicapplication.activities
 
 import android.app.DatePickerDialog
+import android.app.Dialog
 import android.app.TimePickerDialog
 import android.content.Intent
 import android.os.Build
 import android.os.Bundle
 import android.view.MotionEvent.ACTION_DOWN
 import android.view.View
+import android.widget.AdapterView
 import android.widget.Button
 import android.widget.CheckBox
 import android.widget.RadioGroup
 import android.widget.Toast
+import androidx.activity.addCallback
 import androidx.annotation.RequiresApi
+import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import com.google.android.material.materialswitch.MaterialSwitch
+import com.google.android.material.textfield.MaterialAutoCompleteTextView
 import com.google.android.material.textfield.TextInputLayout
 import com.mdlb.basicapplication.R
+import com.mdlb.basicapplication.databases.DBHelper
 import com.mdlb.basicapplication.databinding.ActivityEditorBinding
+import java.util.ArrayList
 import java.util.Calendar
 import kotlin.properties.Delegates
 
@@ -42,16 +49,35 @@ class EditorActivity : AppCompatActivity() {
     private lateinit var preferenceOtherCheckBox: CheckBox
     private lateinit var preferenceNoneCheckBox: CheckBox
     private lateinit var saveButton: Button
+    private lateinit var databaseConnection: DBHelper
+    private var genderOtherSelected = false
+    private var selectedHobbiesCount = 0
+    private var selectedNoneHobbies = false
 
-    @RequiresApi(Build.VERSION_CODES.N)
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        databaseConnection = DBHelper.getInstance(this)
         binding = ActivityEditorBinding.inflate(layoutInflater)
         setContentView(binding.root)
         val isReadOnly = intent.getBooleanExtra("readonly", false);
         initInterface()
         setReadOnlyElementsIfNecessary(isReadOnly, intent)
         attachEventsListeners()
+
+        val builder = AlertDialog.Builder(this)
+        builder.setTitle("Confirm")
+        builder.setMessage("Are you sure to go back?")
+
+        builder.setPositiveButton(android.R.string.yes) { _, _ ->
+            finish()
+        }
+
+        builder.setNegativeButton(android.R.string.no) { _, _ -> }
+
+        this.onBackPressedDispatcher.addCallback(this) {
+            builder.show()
+        }
+
     }
 
     /**
@@ -90,32 +116,102 @@ class EditorActivity : AppCompatActivity() {
     /**
      * Attach every event listeners to every component that needed
      */
-    @RequiresApi(Build.VERSION_CODES.N)
     private fun attachEventsListeners() {
         dateInputLayout.editText?.setOnClickListener {
-            Toast.makeText(this, "Click en DateBirth", Toast.LENGTH_LONG).show()
+            val inputDate: List<String> = dateInputLayout
+                .editText?.text?.split("-") ?: ArrayList()
             val c = Calendar.getInstance()
-            val currentYear = c.get(Calendar.YEAR)
-            val currentMonth = c.get(Calendar.MONTH)
-            val currentDay = c.get(Calendar.DAY_OF_MONTH)
+
+            val inputYear = try {
+                Integer.parseInt(
+                    inputDate.getOrNull(0) ?: c.get(Calendar.YEAR).toString()
+                )
+            } catch (_: Exception) {
+                c.get(Calendar.YEAR)
+            }
+
+            val inputMonth = try {
+                (Integer.parseInt (
+                    inputDate.getOrNull(1) ?: c.get(Calendar.MONTH).toString()
+                ) - 1)
+            } catch (_: Exception) {
+                c.get(Calendar.MONTH)
+            }
+
+            val inputDay = try {
+                Integer.parseInt(
+                    inputDate.getOrNull(2) ?: c.get(Calendar.DAY_OF_MONTH).toString()
+                )
+            } catch (_: Exception) {
+                c.get(Calendar.DAY_OF_MONTH)
+            }
+
             val dateDialog = DatePickerDialog(this, { _, year, month, day ->
-                dateInputLayout.editText?.setText(year.toString() + "-" + month.toString() + "-" + day.toString())
-            }, currentYear, currentMonth, currentDay)
+                var stringMonth = (month + 1).toString()
+                if (stringMonth.length == 1) {
+                    stringMonth = "0$stringMonth"
+                }
+                var stringDay = day.toString()
+                if (stringDay.length == 1) {
+                    stringDay = "0$stringDay"
+                }
+                dateInputLayout.editText?.setText("$year-$stringMonth-$stringDay")
+            }, inputYear, inputMonth, inputDay)
             dateDialog.show()
         }
 
         timeInputLayout.editText?.setOnClickListener {
+            val inputTime: List<String> = timeInputLayout
+                .editText?.text?.split(":") ?: ArrayList()
+
+            val inputHour = try {
+                Integer.parseInt(
+                    inputTime.getOrNull(0) ?: "0"
+                )
+            } catch (_: Exception) {
+                0
+            }
+
+            val inputMinute = try {
+                Integer.parseInt(
+                    inputTime.getOrNull(1) ?: "0"
+                )
+            } catch (_: Exception) {
+                0
+            }
+
             val timeDialog = TimePickerDialog(this, { _, hour, minute ->
-                timeInputLayout.editText?.setText(hour.toString() + ":" + minute.toString())
-            }, 0, 0, true)
+                var hourString = hour.toString()
+                var minuteString = minute.toString()
+
+                if (hourString.length == 1) {
+                    hourString = "0$hourString"
+                }
+
+                if (minuteString.length == 1) {
+                    minuteString = "0$minuteString"
+                }
+                timeInputLayout.editText?.setText(hourString + ":" + minuteString)
+            }, inputHour, inputMinute, true)
             timeDialog.show()
         }
+
+        (genderSpinner.editText as? MaterialAutoCompleteTextView)?.onItemClickListener =
+            AdapterView.OnItemClickListener { _, _, _, id ->
+                // 4 Es "Other"
+                if (id == 4L) {
+                    genderTextInputLayout.visibility = View.VISIBLE
+                    genderOtherSelected = true
+                } else {
+                    genderTextInputLayout.visibility = View.GONE
+                    genderOtherSelected = false
+                }
+            }
 
         toggleCommentSwitch.setOnCheckedChangeListener {_, isChecked ->
             if (isChecked) {
                 commentTextInputLayout.visibility = View.VISIBLE
             } else {
-                commentTextInputLayout.editText?.setText("")
                 commentTextInputLayout.visibility = View.GONE
             }
         }
@@ -143,8 +239,27 @@ class EditorActivity : AppCompatActivity() {
         }
 
         saveButton.setOnClickListener {
+            var hasError = false
+            val correctStringRegex = Regex("[A-Za-z0-9 ]+")
+            val firstName = firstNameTextInputLayout.editText?.text.toString()
 
-            Toast.makeText(this, "Registro guardado", Toast.LENGTH_LONG).show()
+            if (correctStringRegex.matches(firstName) || firstName.isNotEmpty()) {
+                firstNameTextInputLayout.error = null
+            } else {
+                firstNameTextInputLayout.error = "Invalid Name"
+                hasError = true
+            }
+
+            if (!hasError) {
+                Toast.makeText(this, "Registro guardado", Toast.LENGTH_LONG).show()
+            } else {
+                Toast.makeText(this, "El formulario contiene errores, favor de revisar", Toast.LENGTH_LONG).show()
+            }
         }
+    }
+
+    override fun onDestroy() {
+        databaseConnection.close()
+        super.onDestroy()
     }
 }

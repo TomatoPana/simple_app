@@ -7,6 +7,7 @@ import androidx.viewpager.widget.ViewPager
 import com.google.android.material.tabs.TabLayout
 import com.mdlb.basicapplication.R
 import com.mdlb.basicapplication.adapters.MainTabLayoutAdapter
+import com.mdlb.basicapplication.databases.DBHelper
 import com.mdlb.basicapplication.databinding.ActivityMainBinding
 
 class MainActivity : AppCompatActivity() {

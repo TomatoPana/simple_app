@@ -25,7 +25,6 @@
                 android:layout_width="match_parent"
                 android:layout_height="?attr/actionBarSize"
                 app:menu="@menu/menu_main"
-                app:navigationIcon="@drawable/baseline_arrow_back_24"
                 app:navigationIconTint="?attr/colorOnSurface"
                 app:title="New record"
                 app:titleCentered="true" />
@@ -147,7 +146,8 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:inputType="none"
-                android:hint="Select your gender" />
+                android:hint="Select your gender"
+                app:simpleItems="@array/genderItems"/>
 
         </com.google.android.material.textfield.TextInputLayout>
 
